@@ -1,128 +1,114 @@
 package at.f1l2.prunus.avium.core.player;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.time.Instant;
+import java.io.FileOutputStream;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import at.f1l2.prunus.avium.core.PrunusAvium;
 import at.f1l2.prunus.avium.core.exception.AviumCoreException;
 import at.f1l2.prunus.avium.core.model.Program;
+import at.f1l2.prunus.avium.core.model.ProgramBuilder;
 import at.f1l2.prunus.avium.core.player.configuration.RemotePlayerConfig;
+import at.f1l2.prunus.avium.core.utility.HttpResource;
 import at.f1l2.prunus.avium.core.utility.ParseJsonTypeUndefinied;
 
 public class RemotePlayer implements RemotePlayerAccess {
-	
+
+	private static Logger logger = LoggerFactory.getLogger(RemotePlayer.class);
+
 	private RemotePlayerConfig config;
-	
-	public  RemotePlayer(RemotePlayerConfig playerConfiguration) {
+
+	private ProgramBuilder builder;
+
+	public RemotePlayer(RemotePlayerConfig playerConfiguration, ProgramBuilder programBuilder) {
 		this.config = playerConfiguration;
 	}
-	
 
 	@Override
 	public String requestCurrentPlaylistRaw() {
-		// TODO Auto-generated method stub
-		return null;
+		return HttpResource.requestResource(config.getCurrentBroadcastListUrl());
 	}
 
 	@Override
 	public List<Program> requestCurrentPlaylist() {
-		// TODO Auto-generated method stub
-		return null;
+		return parsePrograms(requestCurrentPlaylistRaw());
 	}
 
 	@Override
 	public void downloadProgram(Program program, File sink) {
-		// TODO Auto-generated method stub
-		
-	}
+		logger.info("Program downloaded started. Disply title: {}", program.displayTitle());
+		LocalDateTime startTime = LocalDateTime.now();
 
+		downloadHardPart(program, sink);
+		
+		LocalDateTime endTime = LocalDateTime.now();
+		Duration duration = Duration.between(startTime, endTime);
+		logger.info("Program downloaded ended. Duration in seconds: {}. Display title {}", duration.getSeconds(),
+				program.displayTitle());
+	}
 
 	@Override
 	public void downloadPrograms(List<Program> programs, File sinkFolder) {
-		// TODO Auto-generated method stub
-		
+		for (Program program : programs) {
+			downloadProgram(program, new File(
+					FilenameUtils.concat(sinkFolder.getAbsolutePath(), program.displayTitlePlusFileExtension())));
+		}
 	}
-	
+
+	private void downloadHardPart(Program program, File file) {
+
+		String programDescription = HttpResource.requestResource(program.getHref());
+
+		try {
+			List<Map<String, Object>> doo = ParseJsonTypeUndefinied.doo(new ArrayList<>(), "streams",
+					programDescription);
+
+			if (doo != null && !doo.isEmpty()) {
+				Object object = doo.get(0).get("loopStreamId");
+				String url = config.getResourcesUrl() + object.toString();
+
+				ByteArrayOutputStream baos = HttpResource.requestStream(url);
+
+				FileOutputStream fos = new FileOutputStream(file);
+				fos.write(baos.toByteArray());
+
+				fos.close();
+				baos.close();
+			}
+
+		} catch (Exception e) {
+			throw new AviumCoreException("Unexpected exception occured during download of file.", e);
+		}
+	}
+
 	private List<Program> parsePrograms(String currentPlaylist) {
+		
+		logger.info(currentPlaylist);
 
 		final List<Program> programs = new ArrayList<>();
 
+		if (null == currentPlaylist) {
+			return programs;
+		}
+
 		try {
-			List<Map<String, Object>> doo = ParseJsonTypeUndefinied.doo(new ArrayList<>(), "[].broadcasts", currentPlaylist);
-
-			for (Map<String, Object> linkedHashMap : doo) {
-				Program program = new Program();
-
-				program.setHref(getValueFromMap("href", linkedHashMap));
-				program.setTitle(getValueFromMap("title", linkedHashMap));
-				program.setSubtitle(getValueFromMap("subtitle", linkedHashMap));
-
-				String beginTimestamp = getValueFromMap("start", linkedHashMap);
-				LocalDateTime begin = Instant.ofEpochMilli(Long.valueOf(beginTimestamp)).atZone(ZoneId.systemDefault())
-						.toLocalDateTime();
-
-				program.setBegin(begin);
-
-				String endTimestamp = getValueFromMap("end", linkedHashMap);
-				LocalDateTime end = Instant.ofEpochMilli(Long.valueOf(endTimestamp)).atZone(ZoneId.systemDefault())
-						.toLocalDateTime();
-
-				program.setBegin(begin);
-				program.setEnd(end);
-
-				programs.add(program);
-
+			List<Map<String, Object>> rawPrograms = ParseJsonTypeUndefinied.doo(new ArrayList<>(), "[].broadcasts",
+					currentPlaylist);
+			for (Map<String, Object> rawProgram : rawPrograms) {
+				programs.add(builder.build(rawProgram));
 			}
 
 		} catch (Exception e) {
 			throw new AviumCoreException("", e);
 		}
-
 		return programs;
 	}
-	private String getValueFromMap(String key, Map<String, Object> map) {
-		if (map.containsKey(key)) {
-			Object value = map.get(key);
-			if (Objects.nonNull(value)) {
-				return value.toString();
-			}
-		}
-		return null;
-	}
-
-	private ArrayList<Object> getArrayFromMap(String key, Map<Object, Object> map) {
-		if (map.containsKey(key)) {
-			Object value = map.get(key);
-
-			if (value instanceof ArrayList) {
-				return ((ArrayList<Object>) value);
-			}
-		}
-		return new ArrayList<>();
-	}
-
-	private Map<Object, Object> getMapFromMap(String key, Map<Object, Object> map) {
-		if (map.containsKey(key)) {
-			Object value = map.get(key);
-
-			if (value instanceof Map) {
-				return ((Map<Object, Object>) value);
-			}
-		}
-		return new HashMap<>();
-	}
-
-
-	
-	
 }

@@ -9,6 +9,6 @@ public class AviumCoreException extends RuntimeException{
 	}
 	
 	public AviumCoreException(String message, Exception e) {
-		super(message);
+		super(message, e);
 	}
 }

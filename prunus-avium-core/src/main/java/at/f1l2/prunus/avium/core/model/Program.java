@@ -1,8 +1,11 @@
 package at.f1l2.prunus.avium.core.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class Program {
+	
+	private UUID uuid;
 
 	private String href;
 
@@ -14,10 +17,21 @@ public class Program {
 	
 	private LocalDateTime end;
 
+	public Program() {
+		setUuid(UUID.randomUUID());
+	}
+	
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+	
 	public String getTitle() {
 		return title;
 	}
-
 
 	public void setTitle(String title) {
 		this.title = title;
@@ -63,28 +77,6 @@ public class Program {
 		this.href = href;
 	}
 	
-	
-	public String displayTitlePlusFileExtension() {
-		return displayTitle().concat(".mp3");
-	}
-	
-	public String displayTitle() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(normalize(getTitle()));
-		sb.append(" - ");
-		sb.append(normalize(getSubtitle()));
-		return sb.toString();
-	}
-	
-	private String normalize(String input) {
-		String midResult = skipHTMLTags(input);
-		return midResult.replaceAll("[^a-z����A-Z���0-9- ]", "_");
-	}
-	
-	
-	private String skipHTMLTags(String input) {
-		return input.replaceAll("<[^>]*>", "");
-	}
 	
 	
 	

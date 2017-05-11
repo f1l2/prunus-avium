@@ -19,6 +19,7 @@ import at.f1l2.prunus.avium.core.model.ProgramBuilder;
 import at.f1l2.prunus.avium.core.player.configuration.RemotePlayerConfig;
 import at.f1l2.prunus.avium.core.utility.HttpResource;
 import at.f1l2.prunus.avium.core.utility.ParseJsonTypeUndefinied;
+import at.f1l2.prunus.avium.core.utility.ProgramUtility;
 
 public class RemotePlayer implements RemotePlayerAccess {
 
@@ -30,6 +31,7 @@ public class RemotePlayer implements RemotePlayerAccess {
 
 	public RemotePlayer(RemotePlayerConfig playerConfiguration, ProgramBuilder programBuilder) {
 		this.config = playerConfiguration;
+		this.builder = programBuilder;
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class RemotePlayer implements RemotePlayerAccess {
 
 	@Override
 	public void downloadProgram(Program program, File sink) {
-		logger.info("Program downloaded started. Disply title: {}", program.displayTitle());
+		logger.info("Program downloaded started. Disply title: {}", ProgramUtility.displayTitle(program));
 		LocalDateTime startTime = LocalDateTime.now();
 
 		downloadHardPart(program, sink);
@@ -52,14 +54,14 @@ public class RemotePlayer implements RemotePlayerAccess {
 		LocalDateTime endTime = LocalDateTime.now();
 		Duration duration = Duration.between(startTime, endTime);
 		logger.info("Program downloaded ended. Duration in seconds: {}. Display title {}", duration.getSeconds(),
-				program.displayTitle());
+				ProgramUtility.displayTitle(program));
 	}
 
 	@Override
 	public void downloadPrograms(List<Program> programs, File sinkFolder) {
 		for (Program program : programs) {
 			downloadProgram(program, new File(
-					FilenameUtils.concat(sinkFolder.getAbsolutePath(), program.displayTitlePlusFileExtension())));
+					FilenameUtils.concat(sinkFolder.getAbsolutePath(), ProgramUtility.displayTitlePlusFileExtension(program))));
 		}
 	}
 
@@ -75,13 +77,9 @@ public class RemotePlayer implements RemotePlayerAccess {
 				Object object = doo.get(0).get("loopStreamId");
 				String url = config.getResourcesUrl() + object.toString();
 
-				ByteArrayOutputStream baos = HttpResource.requestStream(url);
-
-				FileOutputStream fos = new FileOutputStream(file);
-				fos.write(baos.toByteArray());
-
+				FileOutputStream fos = new FileOutputStream(file);				
+				HttpResource.requestStream(url, fos);
 				fos.close();
-				baos.close();
 			}
 
 		} catch (Exception e) {

@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -42,15 +44,32 @@ public class HttpResource {
 		}
 	}
 	
-	public static ByteArrayOutputStream requestStream(String url) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	public static void requestStream(String url, OutputStream osData) {
+		
 		InputStream is = null;
 		try {
-			is = new URL(url).openStream();
+			
+			URL resourceURL = new URL(url);
+			int contentLength = resourceURL.openConnection().getContentLength();
+			is = resourceURL.openStream();	
+
 			byte[] byteChunk = new byte[4096]; 
 			int n;
+			
+			int contentRead = 0;
+			int percOld = -1;
+			int percNew = -1;
 			while ((n = is.read(byteChunk)) > 0) {
-				baos.write(byteChunk, 0, n);
+				contentRead = contentRead + n;
+				osData.write(byteChunk, 0, n);
+
+				contentRead = contentRead + n;
+				percNew = contentRead*100/contentLength;
+
+				if (percOld == -1 || percNew > percOld + 9) {
+					percOld = percNew;
+					logger.info("Program download process in %: " + percNew);
+				}
 			}
 		} catch (IOException e) {
 			logger.error("Failed while reading bytes from %s: %s", url, e.getMessage(), e);
@@ -64,8 +83,6 @@ public class HttpResource {
 				}
 			}
 		}
-		
-		return baos;
 	}
 
 }

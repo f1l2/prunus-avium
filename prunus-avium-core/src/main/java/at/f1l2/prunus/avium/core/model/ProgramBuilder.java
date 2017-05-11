@@ -18,7 +18,6 @@ public class ProgramBuilder {
 
 	private static final String KEYEND = "end";
 
-
 	public Program build(Map<String, Object> values) {
 
 		Program program = new Program();
@@ -28,16 +27,20 @@ public class ProgramBuilder {
 		program.setSubtitle(getValueFromMap(KEYSUBTITLE, values));
 
 		String beginTimestamp = getValueFromMap(KEYSTART, values);
-		LocalDateTime begin = Instant.ofEpochMilli(Long.valueOf(beginTimestamp)).atZone(ZoneId.systemDefault())
-				.toLocalDateTime();
+		if (Objects.nonNull(beginTimestamp)) {
+			LocalDateTime begin = Instant.ofEpochMilli(Long.valueOf(beginTimestamp)).atZone(ZoneId.systemDefault())
+					.toLocalDateTime();
+			program.setBegin(begin);
 
-		program.setBegin(begin);
+		}
 
 		String endTimestamp = getValueFromMap(KEYEND, values);
-		LocalDateTime end = Instant.ofEpochMilli(Long.valueOf(endTimestamp)).atZone(ZoneId.systemDefault())
-				.toLocalDateTime();
+		if (Objects.nonNull(endTimestamp)) {
+			LocalDateTime end = Instant.ofEpochMilli(Long.valueOf(endTimestamp)).atZone(ZoneId.systemDefault())
+					.toLocalDateTime();
 
-		program.setEnd(end);
+			program.setEnd(end);
+		}
 
 		return program;
 	}

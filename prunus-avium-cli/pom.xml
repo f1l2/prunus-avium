@@ -55,26 +55,34 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>at.f1l2.prunus.avium.cli.Bootstrap</mainClass>
+							<addClasspath>true</addClasspath>
+
+							<mainClass>at.f1l2.prunus.avium.cli.BootstrapCLI</mainClass>
+
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+							<useUniqueVersions>false</useUniqueVersions>
 						</manifest>
+						<manifestEntries>
+							<version>${project.version}</version>
+						</manifestEntries>
 					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>at.f1l2.prunus.avium.cli.Bootstrap</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
 				</configuration>
 			</plugin>
 		</plugins>

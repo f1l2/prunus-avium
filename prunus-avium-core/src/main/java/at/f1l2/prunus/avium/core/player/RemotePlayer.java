@@ -1,6 +1,5 @@
 package at.f1l2.prunus.avium.core.player;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.time.Duration;
@@ -50,7 +49,7 @@ public class RemotePlayer implements RemotePlayerAccess {
 		LocalDateTime startTime = LocalDateTime.now();
 
 		downloadHardPart(program, sink);
-		
+
 		LocalDateTime endTime = LocalDateTime.now();
 		Duration duration = Duration.between(startTime, endTime);
 		logger.info("Program downloaded ended. Duration in seconds: {}. Display title {}", duration.getSeconds(),
@@ -60,8 +59,8 @@ public class RemotePlayer implements RemotePlayerAccess {
 	@Override
 	public void downloadPrograms(List<Program> programs, File sinkFolder) {
 		for (Program program : programs) {
-			downloadProgram(program, new File(
-					FilenameUtils.concat(sinkFolder.getAbsolutePath(), ProgramUtility.displayTitlePlusFileExtension(program))));
+			downloadProgram(program, new File(FilenameUtils.concat(sinkFolder.getAbsolutePath(),
+					ProgramUtility.displayTitlePlusFileExtension(program))));
 		}
 	}
 
@@ -77,7 +76,7 @@ public class RemotePlayer implements RemotePlayerAccess {
 				Object object = doo.get(0).get("loopStreamId");
 				String url = config.getResourcesUrl() + object.toString();
 
-				FileOutputStream fos = new FileOutputStream(file);				
+				FileOutputStream fos = new FileOutputStream(file);
 				HttpResource.requestStream(url, fos);
 				fos.close();
 			}
@@ -88,7 +87,7 @@ public class RemotePlayer implements RemotePlayerAccess {
 	}
 
 	private List<Program> parsePrograms(String currentPlaylist) {
-		
+
 		logger.info(currentPlaylist);
 
 		final List<Program> programs = new ArrayList<>();

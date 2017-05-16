@@ -1,69 +1,43 @@
 package at.f1l2.prunus.avium.cli;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import at.f1l2.prunus.avium.core.index.IndexManagement;
+import at.f1l2.prunus.avium.core.index.configuration.IndexDefaultConfiguration;
+import at.f1l2.prunus.avium.core.model.Program;
+import at.f1l2.prunus.avium.core.model.ProgramBuilder;
+import at.f1l2.prunus.avium.core.player.RemotePlayer;
+import at.f1l2.prunus.avium.core.player.RemotePlayerAccess;
+import at.f1l2.prunus.avium.core.player.configuration.Oe1RemotePlayerConfig;
 
 @Component
 public class Commands implements CommandMarker {
 
-	private boolean simpleCommandExecuted = false;
+	private RemotePlayerAccess rpa = new RemotePlayer(new Oe1RemotePlayerConfig(), new ProgramBuilder());
 
-	@CliAvailabilityIndicator({ "hw simple" })
-	public boolean isSimpleAvailable() {
-		return true;
-	}
+	private IndexManagement im = new IndexManagement(new IndexDefaultConfiguration());
 
-	@CliAvailabilityIndicator({ "hw complex", "hw enum" })
-	public boolean isComplexAvailable() {
-		if (simpleCommandExecuted) {
-			return true;
-		} else {
-			return false;
+	@CliCommand(value = { "refresh", "r" }, help = "refresh playlist")
+	public String refreshPlaylist() {
+		List<Program> requestCurrentPlaylist = rpa.requestCurrentPlaylist();
+		if (!CollectionUtils.isEmpty(requestCurrentPlaylist)) {
+			im.cleanIndex();
+			im.buildIndex(requestCurrentPlaylist);
 		}
+		return "Playlist is refreshed.";
 	}
 
-	@CliCommand(value = "hw simple", help = "Print a simple hello world message")
-	public String simple(
-			@CliOption(key = { "message" }, mandatory = true, help = "The hello world message") final String message,
-			@CliOption(key = {
-					"location" }, mandatory = false, help = "Where you are saying hello", specifiedDefaultValue = "At work") final String location) {
-		simpleCommandExecuted = true;
-		return "Message = [" + message + "] Location = [" + location + "]";
+	@CliCommand(value = { "search", "s" }, help = "search playlist")
+	public String searchPlaylist(@CliOption(key = { "query", "q" }) String queryStr) {
+		List<Program> searchByTitle = im.searchByTitle(queryStr);
+		return searchByTitle.stream().map(item -> item.toString()).collect(Collectors.joining("\n"));
 	}
 
-	@CliCommand(value = "hw complex", help = "Print a complex hello world message (run 'hw simple' once first)")
-	public String hello(
-			@CliOption(key = { "message" }, mandatory = true, help = "The hello world message") final String message,
-			@CliOption(key = { "name1" }, mandatory = true, help = "Say hello to the first name") final String name1,
-			@CliOption(key = { "name2" }, mandatory = true, help = "Say hello to a second name") final String name2,
-			@CliOption(key = {
-					"time" }, mandatory = false, specifiedDefaultValue = "now", help = "When you are saying hello") final String time,
-			@CliOption(key = {
-					"location" }, mandatory = false, help = "Where you are saying hello") final String location) {
-		return "Hello " + name1 + " and " + name2 + ". Your special message is " + message + ". time=[" + time
-				+ "] location=[" + location + "]";
-	}
-
-	@CliCommand(value = "hw enum", help = "Print a simple hello world message from an enumerated value (run 'hw simple' once first)")
-	public String eenum(@CliOption(key = {
-			"message" }, mandatory = true, help = "The hello world message") final MessageType message) {
-		return "Hello.  Your special enumerated message is " + message;
-	}
-
-	enum MessageType {
-		Type1("type1"), Type2("type2"), Type3("type3");
-
-		private String type;
-
-		private MessageType(String type) {
-			this.type = type;
-		}
-
-		public String getType() {
-			return type;
-		}
-	}
 }

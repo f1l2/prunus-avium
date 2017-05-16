@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class BannerProvider extends DefaultBannerProvider {
-	
+
 	private Logger logger = LoggerFactory.getLogger(BannerProvider.class);
 
 	@Override
@@ -24,16 +24,18 @@ public class BannerProvider extends DefaultBannerProvider {
 
 		StringBuilder banner = new StringBuilder();
 
-		try (BufferedReader br = new BufferedReader(new FileReader(new File("src/main/resources/META-INF/spring/banner.txt")))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(new File("src/main/resources/banner.txt")))) {
 
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				banner.append(line);
 				banner.append(OsUtils.LINE_SEPARATOR);
 			}
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			logger.error("", e);
-		} 
+		}
 
 		banner.append("Version:" + this.getVersion());
 		return banner.toString();

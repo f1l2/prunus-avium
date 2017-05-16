@@ -6,6 +6,8 @@ import java.time.ZoneId;
 import java.util.Map;
 import java.util.Objects;
 
+import at.f1l2.prunus.avium.core.utility.ProgramUtility;
+
 public class ProgramBuilder {
 
 	private static final String KEYHREF = "href";
@@ -23,8 +25,8 @@ public class ProgramBuilder {
 		Program program = new Program();
 
 		program.setHref(getValueFromMap(KEYHREF, values));
-		program.setTitle(getValueFromMap(KEYTITLE, values));
-		program.setSubtitle(getValueFromMap(KEYSUBTITLE, values));
+		program.setTitle(ProgramUtility.normalize(getValueFromMap(KEYTITLE, values)));
+		program.setSubtitle(ProgramUtility.normalize(getValueFromMap(KEYSUBTITLE, values)));
 
 		String beginTimestamp = getValueFromMap(KEYSTART, values);
 		if (Objects.nonNull(beginTimestamp)) {

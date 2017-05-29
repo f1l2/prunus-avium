@@ -1,6 +1,9 @@
 package at.f1l2.prunus.avium.core.index;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +19,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -89,16 +93,46 @@ public class IndexManagement {
 		if (Objects.nonNull(program.getHref())) {
 			document.add(new StringField("href", program.getHref(), Field.Store.YES));
 		}
+
+		if (Objects.nonNull(program.getBegin())) {
+			document.add(new StringField("begin", toString(program.getBegin()), Field.Store.YES));
+		}
+
+		if (Objects.nonNull(program.getEnd())) {
+			document.add(new StringField("end", toString(program.getEnd()), Field.Store.YES));
+		}
+
 		indexWriter.addDocument(document);
 	}
 
+	public List<Program> searchByID(String queryStr) {
+
+		try {
+			final Query query = new QueryParser("id", analyzer).parse(queryStr);
+			return executeQuery(query);
+		} catch (ParseException e) {
+			logger.error("Unexpected error occurred while parsing query.");
+		}
+
+		return new ArrayList<>();
+
+	}
+
 	public List<Program> searchByTitle(String queryStr) {
+		try {
+			final Query query = new QueryParser("title", analyzer).parse(queryStr);
+			return executeQuery(query);
+		} catch (ParseException e) {
+			logger.error("Unexpected error occurred while parsing query.");
+		}
+		return new ArrayList<>();
+	}
+
+	private List<Program> executeQuery(Query query) {
 
 		final List<Program> result = new ArrayList<>();
 
 		try {
-			final Query query = new QueryParser("title", analyzer).parse(queryStr);
-
 			int hitsPerPage = 10;
 			IndexReader reader = DirectoryReader.open(index);
 			IndexSearcher searcher = new IndexSearcher(reader);
@@ -108,18 +142,48 @@ public class IndexManagement {
 			for (int i = 0; i < hits.length; ++i) {
 				int docId = hits[i].doc;
 				Document d = searcher.doc(docId);
-
-				Program program = new Program();
-				program.setHref(d.get("href"));
-				program.setTitle(d.get("title"));
-				program.setSubtitle(d.get("subtitle"));
-				program.setUuid(UUID.fromString(d.get("id")));
-
-				result.add(program);
+				result.add(convertToProgram(d));
 			}
 		} catch (Exception e) {
 			logger.error("Unexpected error occurred while searching the index.", e);
+			System.out.println(e);
 		}
+
 		return result;
+	}
+
+	private Program convertToProgram(Document d) {
+
+		Program program = new Program();
+		program.setHref(d.get("href"));
+		program.setTitle(d.get("title"));
+		program.setSubtitle(d.get("subtitle"));
+		program.setBegin(toLocalDateTime(d.get("begin")));
+		program.setEnd(toLocalDateTime(d.get("end")));
+		program.setUuid(UUID.fromString(d.get("id")));
+
+		return program;
+	}
+
+	private LocalDateTime toLocalDateTime(String ms) {
+
+		System.out.println(ms);
+
+		if (ms == null) {
+			return null;
+		}
+		LocalDateTime localDateTime = Instant.ofEpochSecond(Long.valueOf(ms)).atZone(ZoneId.systemDefault())
+				.toLocalDateTime();
+		System.out.println(localDateTime.toString());
+		return localDateTime;
+	}
+
+	private String toString(LocalDateTime localDateTime) {
+
+		if (Objects.isNull(localDateTime)) {
+			return "";
+		}
+
+		return Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond());
 	}
 }

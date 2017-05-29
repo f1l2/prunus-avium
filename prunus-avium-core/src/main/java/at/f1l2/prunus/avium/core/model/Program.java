@@ -4,23 +4,23 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Program {
-	
+
 	private UUID uuid;
 
 	private String href;
 
 	private String title;
-	
+
 	private String subtitle;
-	
+
 	private LocalDateTime begin;
-	
+
 	private LocalDateTime end;
 
 	public Program() {
 		setUuid(UUID.randomUUID());
 	}
-	
+
 	public UUID getUuid() {
 		return uuid;
 	}
@@ -28,7 +28,7 @@ public class Program {
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -37,49 +37,38 @@ public class Program {
 		this.title = title;
 	}
 
-
 	public String getSubtitle() {
 		return subtitle;
 	}
-
 
 	public void setSubtitle(String subtitle) {
 		this.subtitle = subtitle;
 	}
 
-	
 	public LocalDateTime getBegin() {
 		return begin;
 	}
-
 
 	public void setBegin(LocalDateTime begin) {
 		this.begin = begin;
 	}
 
-
 	public LocalDateTime getEnd() {
 		return end;
 	}
-
 
 	public void setEnd(LocalDateTime end) {
 		this.end = end;
 	}
 
-
 	public String getHref() {
 		return href;
 	}
 
-
 	public void setHref(String href) {
 		this.href = href;
 	}
-	
-	
-	
-	
+
 	@Override
 	public String toString() {
 		return "Program [href=" + href + ", title=" + title + ", subtitle=" + subtitle + ", begin=" + begin + ", end="

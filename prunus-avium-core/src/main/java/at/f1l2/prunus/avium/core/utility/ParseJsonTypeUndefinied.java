@@ -3,14 +3,10 @@ package at.f1l2.prunus.avium.core.utility;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import at.f1l2.prunus.avium.core.exception.AviumCoreException;
@@ -19,8 +15,12 @@ public class ParseJsonTypeUndefinied {
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
-	public static <K, V> List<Map<K, V>> doo(List<Map<K, V>> result, String code, Object json)
-			throws JsonParseException, JsonMappingException, IOException {
+	private ParseJsonTypeUndefinied() {
+		// private constructor due utility class
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <K, V> List<Map<K, V>> doo(List<Map<K, V>> result, String code, Object json) throws IOException {
 
 		String[] commandos = code.split("\\.");
 		String commando = commandos[0];

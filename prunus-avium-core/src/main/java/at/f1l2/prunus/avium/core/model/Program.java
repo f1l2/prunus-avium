@@ -13,6 +13,8 @@ public class Program {
 
 	private String subtitle;
 
+	private String programTitle;
+
 	private LocalDateTime begin;
 
 	private LocalDateTime end;
@@ -73,6 +75,14 @@ public class Program {
 	public String toString() {
 		return "Program [href=" + href + ", title=" + title + ", subtitle=" + subtitle + ", begin=" + begin + ", end="
 				+ end + "]";
+	}
+
+	public String getProgramTitle() {
+		return programTitle;
+	}
+
+	public void setProgramTitle(String programTitle) {
+		this.programTitle = programTitle;
 	}
 
 }

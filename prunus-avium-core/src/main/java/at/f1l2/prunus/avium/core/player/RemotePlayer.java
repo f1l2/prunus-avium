@@ -46,11 +46,11 @@ public class RemotePlayer implements RemotePlayerAccess {
 	@Override
 	public void downloadProgram(Program program, File sink) {
 		logger.info("Program downloaded started. Disply title: {}", ProgramUtility.displayTitle(program));
-		LocalDateTime startTime = LocalDateTime.now();
+		final LocalDateTime startTime = LocalDateTime.now();
 
 		downloadHardPart(program, sink);
 
-		LocalDateTime endTime = LocalDateTime.now();
+		final LocalDateTime endTime = LocalDateTime.now();
 		Duration duration = Duration.between(startTime, endTime);
 		logger.info("Program downloaded ended. Duration in seconds: {}. Display title {}", duration.getSeconds(),
 				ProgramUtility.displayTitle(program));

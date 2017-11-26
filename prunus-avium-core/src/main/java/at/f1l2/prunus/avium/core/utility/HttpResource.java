@@ -1,12 +1,10 @@
 package at.f1l2.prunus.avium.core.utility;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -15,15 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import at.f1l2.prunus.avium.core.exception.AviumCoreException;
 
-
 public class HttpResource {
-	
-	 private static Logger logger = LoggerFactory.getLogger(HttpResource.class);
-	
-	
+
+	private static Logger logger = LoggerFactory.getLogger(HttpResource.class);
+
 	private HttpResource() {
 	}
-	
+
 	public static String requestResource(String url) {
 		try {
 			URLConnection urlConnection = new URL(url).openConnection();
@@ -43,19 +39,19 @@ public class HttpResource {
 			throw new AviumCoreException("Exception occured accessing http resource.", e);
 		}
 	}
-	
+
 	public static void requestStream(String url, OutputStream osData) {
-		
+
 		InputStream is = null;
 		try {
-			
+
 			URL resourceURL = new URL(url);
 			int contentLength = resourceURL.openConnection().getContentLength();
-			is = resourceURL.openStream();	
+			is = resourceURL.openStream();
 
-			byte[] byteChunk = new byte[4096]; 
+			byte[] byteChunk = new byte[4096];
 			int n;
-			
+
 			int contentRead = 0;
 			int percOld = -1;
 			int percNew = -1;
@@ -64,7 +60,7 @@ public class HttpResource {
 				osData.write(byteChunk, 0, n);
 
 				contentRead = contentRead + n;
-				percNew = contentRead*100/contentLength;
+				percNew = contentRead * 100 / contentLength;
 
 				if (percOld == -1 || percNew > percOld + 9) {
 					percOld = percNew;

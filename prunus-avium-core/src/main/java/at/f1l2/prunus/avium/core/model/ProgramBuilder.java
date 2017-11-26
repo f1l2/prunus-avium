@@ -16,6 +16,8 @@ public class ProgramBuilder {
 
 	private static final String KEYSUBTITLE = "subtitle";
 
+	private static final String KEYPROGRAMTITLE = "programTitle";
+
 	private static final String KEYSTART = "start";
 
 	private static final String KEYEND = "end";
@@ -25,8 +27,9 @@ public class ProgramBuilder {
 		Program program = new Program();
 
 		program.setHref(getValueFromMap(KEYHREF, values));
-		program.setTitle(ProgramUtility.normalize(getValueFromMap(KEYTITLE, values)));
-		program.setSubtitle(ProgramUtility.normalize(getValueFromMap(KEYSUBTITLE, values)));
+		program.setTitle(ProgramUtility.skipHTMLTags(getValueFromMap(KEYTITLE, values)));
+		program.setSubtitle(ProgramUtility.skipHTMLTags(getValueFromMap(KEYSUBTITLE, values)));
+		program.setProgramTitle(ProgramUtility.skipHTMLTags(getValueFromMap(KEYPROGRAMTITLE, values)));
 
 		String beginTimestamp = getValueFromMap(KEYSTART, values);
 		if (Objects.nonNull(beginTimestamp)) {

@@ -19,7 +19,7 @@ public class Commands implements CommandMarker {
 	@CliCommand(value = { "refresh", "r" }, help = "refresh playlist")
 	public String refreshPlaylist() {
 		facade.refreshPlaylist();
-		return "Playlist is refreshed.";
+		return "Playlist refreshed.";
 	}
 
 	@CliCommand(value = { "search", "s" }, help = "search playlist")
@@ -34,7 +34,7 @@ public class Commands implements CommandMarker {
 		try {
 			facade.downloadAllBySearch(queryStr);
 		} catch (Exception e) {
-			return "An exception occurred. For further details can be found in the log file.";
+			return "An exception occurred. Further details can be found in the log file.";
 		}
 		return "Download finished successfully.";
 	}

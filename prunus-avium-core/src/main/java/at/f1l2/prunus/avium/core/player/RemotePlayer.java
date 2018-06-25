@@ -88,7 +88,7 @@ public class RemotePlayer implements RemotePlayerAccess {
 
 	private List<Program> parsePrograms(String currentPlaylist) {
 
-		logger.info(currentPlaylist);
+		logger.debug(currentPlaylist);
 
 		final List<Program> programs = new ArrayList<>();
 

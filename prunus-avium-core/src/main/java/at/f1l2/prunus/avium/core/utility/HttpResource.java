@@ -47,6 +47,9 @@ public class HttpResource {
 
 			URL resourceURL = new URL(url);
 			int contentLength = resourceURL.openConnection().getContentLength();
+
+			logger.info("Content-Length: %d", contentLength);
+
 			is = resourceURL.openStream();
 
 			byte[] byteChunk = new byte[4096];
@@ -59,10 +62,9 @@ public class HttpResource {
 				contentRead = contentRead + n;
 				osData.write(byteChunk, 0, n);
 
-				contentRead = contentRead + n;
 				percNew = contentRead * 100 / contentLength;
 
-				if (percOld == -1 || percNew > percOld + 9) {
+				if (percOld == -1 || percNew > percOld + 4) {
 					percOld = percNew;
 					logger.info("Program download process in %: " + percNew);
 				}

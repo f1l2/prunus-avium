@@ -100,7 +100,7 @@ public class IndexManagement {
 		try {
 			final Query query1 = new QueryParser(IndexField.PROGRAM_TITLE.getField(), analyzer).parse(queryStr + "*");
 			final Query query2 = new QueryParser(IndexField.TITLE.getField(), analyzer).parse(queryStr + "*");
-			final Query query3 = new QueryParser(IndexField.ID.getField(), analyzer).parse(queryStr);
+			final Query query3 = new QueryParser(IndexField.ID.getField(), analyzer).parse(queryStr + "*");
 			final Query query4 = new QueryParser(IndexField.BEGIN.getField(), analyzer).parse(queryStr);
 
 			BooleanQuery booleanQuery = new BooleanQuery.Builder()

@@ -48,7 +48,7 @@ public class HttpResource {
 			URL resourceURL = new URL(url);
 			int contentLength = resourceURL.openConnection().getContentLength();
 
-			logger.info("Content-Length: %d", contentLength);
+			logger.info("Content-Length: {}", contentLength);
 
 			is = resourceURL.openStream();
 
@@ -66,7 +66,7 @@ public class HttpResource {
 
 				if (percOld == -1 || percNew > percOld + 4) {
 					percOld = percNew;
-					logger.info("Program download process in %: " + percNew);
+					logger.info("Process {} ({} %)", contentRead, percNew);
 				}
 			}
 		} catch (IOException e) {

@@ -55,9 +55,9 @@ public class HttpResource {
 			byte[] byteChunk = new byte[4096];
 			int n;
 
-			int contentRead = 0;
-			int percOld = -1;
-			int percNew = -1;
+			long contentRead = 0;
+			long percOld = -1;
+			long percNew = -1;
 			while ((n = is.read(byteChunk)) > 0) {
 				contentRead = contentRead + n;
 				osData.write(byteChunk, 0, n);
@@ -66,7 +66,7 @@ public class HttpResource {
 
 				if (percOld == -1 || percNew > percOld + 4) {
 					percOld = percNew;
-					logger.info("Process {} ({} %)", contentRead, percNew);
+					logger.info("Process {} MB ({} %)", contentRead / 1000 * 1000, percNew);
 				}
 			}
 		} catch (IOException e) {

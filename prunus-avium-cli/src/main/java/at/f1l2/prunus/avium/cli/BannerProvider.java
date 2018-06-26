@@ -2,8 +2,8 @@
 package at.f1l2.prunus.avium.cli;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +24,24 @@ public class BannerProvider extends DefaultBannerProvider {
 
 		StringBuilder banner = new StringBuilder();
 
-		try (BufferedReader br = new BufferedReader(new FileReader(new File("src/main/resources/banner.txt")))) {
+		InputStream resourceAsStream = null;
+		try {
+			resourceAsStream = getClass().getClassLoader().getResourceAsStream("/banner.txt");
+		} catch (Exception e1) {
+			logger.error("", e1);
+			return "Banner missing. First.";
+		}
+
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream))) {
 
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				banner.append(line);
 				banner.append(OsUtils.LINE_SEPARATOR);
 			}
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			logger.error("", e);
+			return "Banner missing. Second.";
 		}
 
 		banner.append("Version:" + this.getVersion());
